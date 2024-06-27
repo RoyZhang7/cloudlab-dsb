@@ -23,20 +23,20 @@ lablist = [
     ('lab2', 'Lab 2'),
     ('lab3', 'Lab 3'),
     ('lab4', 'Lab 4 - Advanced options available')]
-pc.defineParameter("lab", "Select the lab you are working on",
-                   portal.ParameterType.STRING, lablist[0], lablist)
+# pc.defineParameter("lab", "Select the lab you are working on",
+#                    portal.ParameterType.STRING, lablist[0], lablist)
 
-# Node type to reserve (lab 1 only)
-pc.defineParameter("node_type", "Node type (for lab 1 only)",
-                   portal.ParameterType.NODETYPE, "c6525-25g", longDescription="These are known to work: Utah: c6525-25g, c6525-100g; APT: r320; Wisconin: c220g2, c220g1")
+# # Node type to reserve (lab 1 only)
+# pc.defineParameter("node_type", "Node type (for lab 1 only)",
+#                    portal.ParameterType.NODETYPE, "c6525-25g", longDescription="These are known to work: Utah: c6525-25g, c6525-100g; APT: r320; Wisconin: c220g2, c220g1")
 
 # Number of server machines
 pc.defineParameter("n_servers", "Number of server machines",
-                   portal.ParameterType.INTEGER, 3, advanced=True)
+                   portal.ParameterType.INTEGER, 3)
 
 # Number of client machines
 pc.defineParameter("n_clients", "Number of client machines",
-                   portal.ParameterType.INTEGER, 1, advanced=True)
+                   portal.ParameterType.INTEGER, 1)
 
 # Parameter to set virtualized mode or not
 modelist = [
@@ -54,25 +54,25 @@ if params.n_servers < 1 or params.n_servers > 10:
 if params.n_clients < 1 or params.n_clients > 3:
     pc.reportError(portal.ParameterError("You must choose at least 1 and no more than 3 clients.", ["n_clients"]))
 
-if params.lab == 'lab0':
-        params.n_servers = 3
-        params.n_clients = 1
-        params.mode = 'default'
-elif params.lab == 'lab1':
-        params.n_servers = 3
-        params.n_clients = 1
-        params.mode = 'passthru'
-elif params.lab == 'lab2':
-        params.n_servers = 1
-        params.n_clients = 1
-        params.mode = 'default'
-elif params.lab == 'lab3':
-        params.n_servers = 2
-        params.n_clients = 1
-        params.mode = 'default'
-else:
-    if params.lab != 'lab4':
-        pc.reportError(portal.ParameterError("Invalid lab selected!", ["lab"]))
+# if params.lab == 'lab0':
+#         params.n_servers = 3
+#         params.n_clients = 1
+#         params.mode = 'default'
+# elif params.lab == 'lab1':
+#         params.n_servers = 3
+#         params.n_clients = 1
+#         params.mode = 'passthru'
+# elif params.lab == 'lab2':
+#         params.n_servers = 1
+#         params.n_clients = 1
+#         params.mode = 'default'
+# elif params.lab == 'lab3':
+#         params.n_servers = 2
+#         params.n_clients = 1
+#         params.mode = 'default'
+# else:
+#     if params.lab != 'lab4':
+#         pc.reportError(portal.ParameterError("Invalid lab selected!", ["lab"]))
 
 # Abort execution if there are any errors, and report them
 portal.context.verifyParameters()
@@ -90,8 +90,8 @@ class Parameters(pg.Resource):
         param.text = '%u' % int(params.n_clients)
         param = ET.SubElement(el,paramXML, name='mode')
         param.text = params.mode
-        param = ET.SubElement(el,paramXML, name='node_type')
-        param.text = params.node_type
+        # param = ET.SubElement(el,paramXML, name='node_type')
+        # param.text = params.node_type
 
         return el
 
@@ -107,10 +107,10 @@ for i in range(params.n_servers):
     n = request.RawPC('server%u' % i)
     n.disk_image = 'urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD'
     iface = n.addInterface('interface-%u' % i)
-    if params.mode == "passthru":
-        # We know that the AMD machines support device pass-through.
-        # XXX: This is restrictive, as other machine types might support it, too. Not clear how to constrain the hardware type to a set of machines, rather than just a single type.
-        n.hardware_type = params.node_type
+    # if params.mode == "passthru":
+    #     # We know that the AMD machines support device pass-through.
+    #     # XXX: This is restrictive, as other machine types might support it, too. Not clear how to constrain the hardware type to a set of machines, rather than just a single type.
+    #     n.hardware_type = params.node_type
     n.addService(pg.Execute(shell="bash", command="/local/repository/init.sh"))
     mylink.addInterface(iface)
 
